@@ -1,0 +1,6 @@
+##fileformat=VCFv4.2
+##source=PharmaGuard_Test
+##INFO=<ID=GENE,Number=1,Type=String,Description="Gene Symbol">
+##INFO=<ID=STAR,Number=1,Type=String,Description="Star Allele">
+#CHROM POS ID REF ALT QUAL FILTER INFO FORMAT SAMPLE_001
+22 42130692 rs3892097 G A 100 PASS GENE=CYP2D6;STAR=*4 GT 1/1
