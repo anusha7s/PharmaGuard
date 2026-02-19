@@ -41,6 +41,37 @@ flowchart LR
 
 ---
 
+## 🛠 Tech Stack
+
+### 🔹 Frontend
+- ⚛️ React (Vite + TypeScript)
+- 🎨 CSS Modules / Custom Styling
+- 🔄 Fetch API for backend integration
+- 📊 Dynamic clinical dashboard components
+
+### 🔹 Backend
+- 🚀 FastAPI (Python)
+- 🧬 Custom CPIC Rule Engine
+- 🧮 Real Activity Score Calculator (Per Allele Model)
+- 📁 VCF Parser (GRCh38 compatible)
+- 🤖 Groq LLM API (for biological explanations)
+
+### 🔹 AI Layer
+- Groq LLM API
+- Structured Prompt Engineering
+- Mechanism-of-action generator
+
+### 🔹 Deployment
+- 🌐 Frontend: Vercel
+- 🖥 Backend: Render
+- 🔐 Environment Variables for API security
+
+### 🔹 DevOps
+- Git + GitHub
+- CORS-secured API architecture
+
+---
+
 ## 🏗 Project Structure
 
 ```
@@ -63,6 +94,40 @@ PharmaGuard/
 │
 ├── README.md
 └── .gitignore
+```
+
+---
+
+# 📡 API Documentation
+
+## Base URL
+
+https://your-backend.onrender.com
+
+---
+
+## 🔍 POST `/analyze`
+
+Analyzes a VCF file against selected drugs.
+
+### Request
+
+**Content-Type:** `multipart/form-data`
+
+| Field | Type | Description |
+|-------|------|------------|
+| file  | File (.vcf) | Genomic VCF file |
+| drugs | String | Comma-separated drug names |
+
+---
+
+### Example Request (cURL)
+
+```bash
+curl -X POST "https://your-backend.onrender.com/analyze" \
+  -H "Content-Type: multipart/form-data" \
+  -F "file=@sample.vcf" \
+  -F "drugs=CLOPIDOGREL,WARFARIN,CODEINE"
 ```
 
 ---
@@ -128,23 +193,44 @@ sequenceDiagram
 
 ---
 
-## 🧪 Example Clinical Output
+# 🧪 Usage Examples
 
-```
-{
-  "drug": "CLOPIDOGREL",
-  "risk_assessment": {
-    "risk_label": "Ineffective",
-    "severity": "high",
-    "confidence_score": 0.97
-  },
-  "pharmacogenomic_profile": {
-    "primary_gene": "CYP2C19",
-    "diplotype": "*2/*2",
-    "phenotype": "PM",
-    "activity_score": 0
-  }
-}
+```markdown
+# 🧪 Usage Examples
+
+## Example 1 — Clopidogrel
+
+**Input:**
+- CYP2C19 *2/*2
+
+**Output:**
+- Risk: Ineffective
+- Severity: High
+- Recommendation: Alternative antiplatelet therapy
+
+---
+
+## Example 2 — Warfarin
+
+**Input:**
+- CYP2C9 *1/*3
+
+**Output:**
+- Risk: Adjust Dosage
+- Severity: Moderate
+- Recommendation: Lower starting dose
+
+---
+
+## Example 3 — Codeine
+
+**Input:**
+- CYP2D6 *4/*4
+
+**Output:**
+- Risk: Toxic
+- Severity: Critical
+- Recommendation: Avoid codeine
 ```
 
 ---
@@ -218,49 +304,91 @@ http://localhost:5173
 
 ---
 
-## 🧠 Advanced Features
+# 🌍 Applications
 
-Multi-variant per gene handling
-
-Activity scoring per allele (CPIC aligned)
-
-CYP2D6 copy-number support
-
-Phenotype normalization
-
-Urgency classification
-
-Alternative drug suggestions
-
-Evidence-level tagging
+PharmaGuard enables real-world pharmacogenomic decision support across multiple healthcare and research domains.
 
 ---
 
-## 🌍 Future Roadmap
+## 🏥 1. Clinical Decision Support
 
-VKORC1 integration for Warfarin
-
-Polygenic risk modeling
-
-Real CPIC database integration
-
-Docker deployment
-
-Cloud hosting (Render + Vercel)
-
-PDF clinical report export
+- Assist physicians in prescribing genotype-guided therapies  
+- Reduce adverse drug reactions (ADRs)  
+- Optimize dosing strategies  
+- Improve medication efficacy  
+- Support CPIC-aligned prescribing practices  
 
 ---
 
-## 👩‍💻 Built With
+## 💊 2. Precision Medicine Programs
 
-FastAPI
+- Integrate into hospital pharmacogenomics pipelines  
+- Support preemptive genotyping initiatives  
+- Enable personalized drug therapy selection  
+- Provide explainable AI-backed recommendations  
 
-React + TypeScript
+---
 
-CPIC Guidelines
+## 🧬 3. Genomic Testing Laboratories
 
-Modern pharmacogenomic modeling
+- Automate interpretation of PGx VCF panels  
+- Standardize CPIC-based risk reporting  
+- Generate structured clinical summaries  
+- Reduce manual interpretation workload  
+
+---
+
+## 📊 4. Research & Academia
+
+- Study genotype–phenotype correlations  
+- Model drug response variability  
+- Evaluate pharmacogenomic impact on clinical outcomes  
+- Serve as a teaching tool for genomic medicine  
+
+---
+
+## 🏦 5. Digital Health & HealthTech Startups
+
+- Integrate into EHR systems  
+- Build patient-facing genomic dashboards  
+- Develop AI-powered precision therapeutics platforms  
+- Offer genomic risk analysis as a service  
+
+---
+
+## 🧪 6. Pharmaceutical & Clinical Trials
+
+- Stratify patients based on metabolizer status  
+- Improve drug safety profiling  
+- Reduce trial variability  
+- Support genotype-informed drug development  
+
+---
+
+## 🌐 7. Telemedicine & Remote Care
+
+- Enable genotype-informed prescribing in virtual consultations  
+- Provide decision support in resource-limited settings  
+- Support genomic-based treatment personalization at scale  
+
+---
+
+## 🧠 8. AI in Healthcare Research
+
+- Demonstrates rule-based + LLM hybrid architecture  
+- Serves as a model for explainable AI in genomics  
+- Bridges structured clinical guidelines with AI-generated insights  
+
+---
+
+# 🚀 Impact Potential
+
+By transforming raw genomic data into actionable insights, PharmaGuard supports:
+
+- Safer prescribing
+- Reduced drug toxicity
+- Improved therapeutic outcomes
+- Scalable precision medicine infrastructure
 
 ## 🔬 Impact
 
@@ -270,6 +398,32 @@ PharmaGuard illustrates how:
 - Clinical guidelines can be computationally encoded  
 - Decision-support systems can enhance medication safety  
 - AI-assisted genomics can support precision therapeutics  
+
+---
+
+# 👥 Team
+
+## Anusha Saraswat  
+**Role:** AI & Backend Architect  
+
+- Designed and implemented the CPIC-based pharmacogenomic rule engine  
+- Built real allele-level activity scoring model  
+- Developed multi-variant gene interpretation logic  
+- Integrated Groq LLM for biological mechanism explanations  
+- Architected full FastAPI backend and API schema  
+- Led deployment pipeline (Render + Vercel)
+
+---
+
+## Ratan Pandey 
+**Role:** Frontend & Clinical Interface Engineer  
+
+- Designed and built the React + TypeScript dashboard  
+- Implemented dynamic genomic profile visualization  
+- Integrated frontend with backend API  
+- Developed risk visualization system (severity, confidence, color logic)  
+- Implemented UX for clinical decision support  
+- Handled deployment and production integration
 
 ---
 
