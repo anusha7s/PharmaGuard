@@ -156,7 +156,7 @@ const ResultsDashboard: React.FC<ResultsDashboardProps> = ({ results, activeTab,
 
         {/* Quality Metrics */}
         <Accordion id="qm" icon="📊" title="Quality Metrics">
-          <ActionPanel jsonOutput={jsonStr} metrics={r.quality_metrics} />
+          <ActionPanel metrics={r.quality_metrics} />
         </Accordion>
 
         {/* Raw JSON */}
