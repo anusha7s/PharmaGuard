@@ -13,7 +13,7 @@ chr12\t21284072\trs4149056\tT\tC\t99\tPASS\tGENE=SLCO1B1;STAR=*5;RS=rs4149056\tG
 chr6\t18128556\trs1800462\tG\tC\t99\tPASS\tGENE=TPMT;STAR=*2;RS=rs1800462\tGT\t0/0
 chr1\t98348885\trs3918290\tC\tT\t99\tPASS\tGENE=DPYD;STAR=*2A;RS=rs3918290\tGT\t0/0`;
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+const API_URL = import.meta.env.VITE_API_URL || 'https://pharmaguard-9agy.onrender.com';
 
 /**
  * Analyzes VCF content against selected drugs using the backend API.
