@@ -1,9 +1,16 @@
-venv/
-__pycache__/
-.env
+# Python
+backend/venv/
+backend/__pycache__/
 *.pyc
-*.pyo
-*.pyd
-*.sqlite3
-*.log
-sample_vcf/
+
+# Node
+frontend/node_modules/
+frontend/dist/
+
+# Environment
+.env
+.env.*
+
+# OS
+.DS_Store
+Thumbs.db
