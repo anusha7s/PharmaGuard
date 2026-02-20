@@ -6,14 +6,34 @@ from mappings import VARIANT_TO_STAR, DIPLOTYPE_TO_PHENOTYPE, DRUG_RULES
 # ─────────────────────────────────────────────
 def determine_zygosity(genotype: str):
 
-    if genotype in ["1/1", "1|1"]:
+    if not genotype:
+        return "Unknown"
+
+    # Remove extra FORMAT info if present (e.g. GT:DP:GQ)
+    genotype = genotype.split(":")[0]
+
+    # Normalize separators
+    genotype = genotype.replace("|", "/")
+
+    alleles = genotype.split("/")
+
+    # Missing genotype
+    if "." in alleles:
+        return "Unknown"
+
+    # Homozygous reference
+    if alleles[0] == alleles[1] == "0":
+        return "Homozygous Reference"
+
+    # Homozygous alternate (any non-zero identical)
+    if alleles[0] == alleles[1] and alleles[0] != "0":
         return "Homozygous"
-    if genotype in ["0/1", "1/0", "0|1", "1|0"]:
+
+    # Heterozygous (one ref + one alt OR two different alts)
+    if alleles[0] != alleles[1]:
         return "Heterozygous"
 
     return "Unknown"
-
-
 
 # ─────────────────────────────────────────────
 # Determine Star Alleles (Diplotype)
@@ -76,62 +96,89 @@ def determine_star(gene: str, variants: list):
 # ─────────────────────────────────────────────
 # Determine Phenotype
 # ─────────────────────────────────────────────
+ALLOWED_PHENOTYPES = ["PM", "IM", "NM", "RM", "URM", "Unknown"]
+
 def determine_phenotype(gene: str, diplotype: str):
+
+    if not gene or not diplotype:
+        return "Unknown"
 
     gene = gene.upper()
 
+    # Normalize diplotype safely
+    try:
+        allele1, allele2 = diplotype.split("/")
+        alleles = sorted([allele1.strip(), allele2.strip()])
+    except Exception:
+        return "Unknown"
+
     # ───────────────── CYP2D6 ─────────────────
     if gene == "CYP2D6":
-        if "*4/*4" in diplotype:
+
+        if alleles == ["*4", "*4"]:
             return "PM"
-        if "*4" in diplotype:
+
+        if "*4" in alleles:
             return "IM"
+
         return "NM"
 
     # ───────────────── CYP2C19 ─────────────────
     if gene == "CYP2C19":
-        if "*2/*2" in diplotype or "*3/*3" in diplotype:
+
+        if alleles in [["*2", "*2"], ["*3", "*3"]]:
             return "PM"
-        if "*2" in diplotype or "*3" in diplotype:
+
+        if "*2" in alleles or "*3" in alleles:
             return "IM"
+
         return "NM"
 
     # ───────────────── CYP2C9 ─────────────────
     if gene == "CYP2C9":
-        if "*3/*3" in diplotype:
+
+        if alleles == ["*3", "*3"]:
             return "PM"
-        if "*2" in diplotype or "*3" in diplotype:
+
+        if "*2" in alleles or "*3" in alleles:
             return "IM"
+
         return "NM"
 
     # ───────────────── SLCO1B1 ─────────────────
     if gene == "SLCO1B1":
-        if "*5/*5" in diplotype:
+
+        if alleles == ["*5", "*5"]:
             return "PM"
-        if "*5" in diplotype:
+
+        if "*5" in alleles:
             return "IM"
+
         return "NM"
 
     # ───────────────── TPMT ─────────────────
     if gene == "TPMT":
-        if "*2/*2" in diplotype or "*3" in diplotype:
+
+        if alleles == ["*2", "*2"] or any(a.startswith("*3") for a in alleles):
             return "PM"
-        if "*2" in diplotype:
+
+        if "*2" in alleles:
             return "IM"
+
         return "NM"
 
     # ───────────────── DPYD ─────────────────
     if gene == "DPYD":
-        if "*2A/*2A" in diplotype:
+
+        if alleles == ["*2A", "*2A"]:
             return "PM"
-        if "*2A" in diplotype:
+
+        if "*2A" in alleles:
             return "IM"
+
         return "NM"
 
-    return "NM"
-
-
-
+    return "Unknown"
 
 # ─────────────────────────────────────────────
 # Activity Score Calculation
@@ -186,6 +233,8 @@ def calculate_activity_score(gene: str, diplotype: str) -> float:
 # ─────────────────────────────────────────────
 # Risk Assessment
 # ─────────────────────────────────────────────
+ALLOWED_SEVERITIES = ["none", "low", "moderate", "high", "critical"]
+
 def assess_risk(drug: str, phenotype: str):
     rule = DRUG_RULES.get(drug)
 
@@ -193,7 +242,7 @@ def assess_risk(drug: str, phenotype: str):
         return {
             "risk": "Unknown",
             "severity": "low",
-            "recommendation": "No guideline available."
+            "recommendation": "No clinical guideline available for this drug."
         }
 
     phenotype_data = rule["phenotypes"].get(phenotype)
@@ -202,18 +251,23 @@ def assess_risk(drug: str, phenotype: str):
         return {
             "risk": "Unknown",
             "severity": "low",
-            "recommendation": "No phenotype rule found."
+            "recommendation": "No phenotype rule available. Consult clinician."
         }
+
+    severity = phenotype_data["severity"]
+
+    # Enforce allowed values
+    if severity not in ALLOWED_SEVERITIES:
+        severity = "low"
 
     return {
         "risk": phenotype_data["risk"],
-        "severity": phenotype_data["severity"],
-        "recommendation": rule["recommendation"].get(
+        "severity": severity,
+        "recommendation": rule.get("recommendations", {}).get(
             phenotype,
             "Follow clinical guidelines."
         )
     }
-
 
 # ─────────────────────────────────────────────
 # Confidence Scoring

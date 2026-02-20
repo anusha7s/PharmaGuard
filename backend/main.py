@@ -55,7 +55,11 @@ async def analyze_vcf(
 ):
 
     if not file.filename.endswith(".vcf"):
-        raise HTTPException(status_code=400, detail="Only .vcf files supported")
+        raise HTTPException(
+        status_code=400,
+        detail="Invalid file type. Please upload a valid .vcf genomic file."
+    )
+
 
     content = await file.read()
     content = content.decode("utf-8")
@@ -63,7 +67,11 @@ async def analyze_vcf(
     parsed_variants = parse_vcf(content)
 
     if not parsed_variants:
-        raise HTTPException(status_code=400, detail="No variants detected")
+        raise HTTPException(
+        status_code=400,
+        detail="VCF file parsed but no pharmacogenomic variants detected."
+    )
+
 
     drug_list = [d.strip().upper() for d in drugs.split(",")]
 
