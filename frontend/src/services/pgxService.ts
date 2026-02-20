@@ -13,50 +13,100 @@ chr12\t21284072\trs4149056\tT\tC\t99\tPASS\tGENE=SLCO1B1;STAR=*5;RS=rs4149056\tG
 chr6\t18128556\trs1800462\tG\tC\t99\tPASS\tGENE=TPMT;STAR=*2;RS=rs1800462\tGT\t0/0
 chr1\t98348885\trs3918290\tC\tT\t99\tPASS\tGENE=DPYD;STAR=*2A;RS=rs3918290\tGT\t0/0`;
 
-const API_URL = import.meta.env.VITE_API_URL || 'https://pharmaguard-9agy.onrender.com';
+const API_URL =
+  import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000';
 
-/**
- * Analyzes VCF content against selected drugs using the backend API.
- * 
- * Integration Point:
- * - Endpoint: POST /analyze
- * - Request: Multipart form data with 'file' (VCF content) and 'drugs' (comma-separated list).
- * - Response: JSON with 'results' array containing analysis for each drug.
- * 
- * Error Handling:
- * - Throws error if network fails or backend returns non-200 status.
- */
+let currentController: AbortController | null = null;
+let isAnalyzing = false;
+
+async function delay(ms: number) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+async function fetchWithRetry(
+  url: string,
+  options: RequestInit,
+  retries = 2
+): Promise<Response> {
+  try {
+    const response = await fetch(url, options);
+
+    if (!response.ok && retries > 0) {
+      await delay(1000);
+      return fetchWithRetry(url, options, retries - 1);
+    }
+
+    return response;
+  } catch (error) {
+    if (retries > 0) {
+      await delay(1000);
+      return fetchWithRetry(url, options, retries - 1);
+    }
+    throw error;
+  }
+}
+
 export async function analyzeVCF(
   vcfContent: string,
   vcfFileName: string,
   drugs: string[]
 ): Promise<AnalysisResult[]> {
+
+  if (isAnalyzing) {
+    throw new Error("Analysis already in progress. Please wait.");
+  }
+
+  isAnalyzing = true;
+
+  // Cancel previous request if exists
+  if (currentController) {
+    currentController.abort();
+  }
+
+  currentController = new AbortController();
+
   const formData = new FormData();
-  
-  // Create a file from the string content
   const file = new File([vcfContent], vcfFileName, { type: 'text/plain' });
+
   formData.append('file', file);
   formData.append('drugs', drugs.join(','));
 
   try {
-    const response = await fetch(`${API_URL}/analyze`, {
-      method: 'POST',
-      body: formData,
-    });
+    const response = await fetchWithRetry(
+      `${API_URL}/analyze`,
+      {
+        method: 'POST',
+        body: formData,
+        signal: currentController.signal
+      },
+      2
+    );
 
     if (!response.ok) {
-      const errorData = await response.json().catch(() => ({ detail: 'Network error' }));
-      throw new Error(
-  errorData.detail ||
-  'Genomic analysis failed. Please verify the uploaded VCF file.'
-);
+      const errorData = await response
+        .json()
+        .catch(() => ({ detail: 'Network error' }));
 
+      throw new Error(
+        errorData.detail ||
+        'Genomic analysis failed. Please verify the uploaded VCF file.'
+      );
     }
 
     const data = await response.json();
-    return data.results; 
-  } catch (error) {
+    return data.results;
+
+  } catch (error: any) {
+
+    if (error.name === "AbortError") {
+      console.log("Previous request cancelled.");
+      return [];
+    }
+
     console.error('Error analyzing VCF:', error);
     throw error;
+
+  } finally {
+    isAnalyzing = false;
   }
 }
