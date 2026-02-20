@@ -14,7 +14,7 @@ chr6\t18128556\trs1800462\tG\tC\t99\tPASS\tGENE=TPMT;STAR=*2;RS=rs1800462\tGT\t0
 chr1\t98348885\trs3918290\tC\tT\t99\tPASS\tGENE=DPYD;STAR=*2A;RS=rs3918290\tGT\t0/0`;
 
 const API_URL =
-  import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000';
+  import.meta.env.VITE_API_URL || 'https://pharmaguard-9agy.onrender.com';
 
 let currentController: AbortController | null = null;
 let isAnalyzing = false;
