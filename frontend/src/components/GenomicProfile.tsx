@@ -40,11 +40,11 @@ const GenomicProfile: React.FC<GenomicProfileProps> = ({ profile, riskColor }) =
                 <span className="variant-star">{v.star}</span>
               </div>
               <div className="variant-meta">
-                <span>Position: {v.chrom}:{v.pos}</span>
+                {/* <span>Position: {v.chrom}:{v.pos}</span> */}
                 <span>REF/ALT: {v.ref}/{v.alt}</span>
                 <span>Zygosity: <strong>{v.zygosity}</strong></span>
               </div>
-              <div className="variant-func">{v.fn}</div>
+              {/* <div className="variant-func">{v.fn}</div> */}
             </div>
           ))
         ) : (

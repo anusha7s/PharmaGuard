@@ -46,7 +46,11 @@ export async function analyzeVCF(
 
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({ detail: 'Network error' }));
-      throw new Error(errorData.detail || 'Analysis failed');
+      throw new Error(
+  errorData.detail ||
+  'Genomic analysis failed. Please verify the uploaded VCF file.'
+);
+
     }
 
     const data = await response.json();
